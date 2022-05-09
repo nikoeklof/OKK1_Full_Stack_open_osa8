@@ -1,8 +1,52 @@
+import { gql, useMutation, useQuery } from "@apollo/client"
+import { useState } from "react"
+import Select from "react-select"
+const ALL_AUTHORS = gql`
+  query {
+    allAuthors {
+      name
+      born
+      bookAmount
+    }
+  }
+`
+const SET_BORN = gql`
+  mutation setBorn($name: String!, $setBornTo: Int!) {
+    editAuthor(name: $name, setBornTo: $setBornTo) {
+      name
+    }
+  }
+`
 const Authors = (props) => {
+  const queryResult = useQuery(ALL_AUTHORS)
+  const [birthYear, setBirthYear] = useState("")
+  const [selectedAuthor, setSelectedAuthor] = useState(null)
+  const [editAuthor] = useMutation(SET_BORN, {
+    refetchQueries: [{ query: ALL_AUTHORS }],
+  })
   if (!props.show) {
     return null
   }
-  const authors = []
+  if (queryResult.loading) return <div>...Loading</div>
+  const authors = [...queryResult.data.allAuthors]
+
+  const options = []
+  authors.forEach((author) => {
+    options.push({ value: author.name, label: author.name })
+  })
+  console.log(options)
+
+  const setBornTo = async (e) => {
+    e.preventDefault()
+    console.log(selectedAuthor)
+    const born = parseInt(birthYear)
+    editAuthor({
+      variables: {
+        name: selectedAuthor.value,
+        setBornTo: born,
+      },
+    })
+  }
 
   return (
     <div>
@@ -18,11 +62,33 @@ const Authors = (props) => {
             <tr key={a.name}>
               <td>{a.name}</td>
               <td>{a.born}</td>
-              <td>{a.bookCount}</td>
+              <td>{a.bookAmount}</td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      <div>
+        <form onSubmit={setBornTo}>
+          <h3>Change birthdate</h3>
+          <Select
+            value={selectedAuthor}
+            onChange={setSelectedAuthor}
+            options={options}
+          />
+          {/* <input
+            placeholder="Author name..."
+            onChange={({ target }) => setAuthorname(target.value)}
+          /> */}
+          <br></br>
+          <input
+            placeholder="Set birth year..."
+            onChange={({ target }) => setBirthYear(target.value)}
+          />
+          <br></br>
+          <button type="submit">Set</button>
+        </form>
+      </div>
     </div>
   )
 }

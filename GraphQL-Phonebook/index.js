@@ -153,6 +153,7 @@ const resolvers = {
   },
   Mutation: {
     addBook: (root, args) => {
+      console.log(args)
       const newBook = { ...args, id: uuid() };
       books = books.concat(newBook);
       return newBook;
