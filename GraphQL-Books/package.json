@@ -1,0 +1,17 @@
+{
+  "name": "graphql-phonebook",
+  "version": "1.0.0",
+  "description": "Learning GraphQL",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "author": "Niko Eklöf",
+  "license": "MIT",
+  "dependencies": {
+    "apollo-server": "^3.6.7",
+    "dotenv": "^16.0.0",
+    "graphql": "^16.4.0",
+    "mongoose": "^6.3.3"
+  }
+}

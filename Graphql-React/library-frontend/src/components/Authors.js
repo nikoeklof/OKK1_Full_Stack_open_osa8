@@ -29,6 +29,7 @@ const Authors = (props) => {
   }
   if (queryResult.loading) return <div>...Loading</div>
   const authors = [...queryResult.data.allAuthors]
+  console.log(queryResult.data)
 
   const options = []
   authors.forEach((author) => {
@@ -38,7 +39,6 @@ const Authors = (props) => {
 
   const setBornTo = async (e) => {
     e.preventDefault()
-    console.log(selectedAuthor)
     const born = parseInt(birthYear)
     editAuthor({
       variables: {
@@ -76,10 +76,6 @@ const Authors = (props) => {
             onChange={setSelectedAuthor}
             options={options}
           />
-          {/* <input
-            placeholder="Author name..."
-            onChange={({ target }) => setAuthorname(target.value)}
-          /> */}
           <br></br>
           <input
             placeholder="Set birth year..."
