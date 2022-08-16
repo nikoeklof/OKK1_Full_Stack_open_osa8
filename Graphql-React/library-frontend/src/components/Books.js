@@ -1,26 +1,19 @@
 import { gql, useQuery } from "@apollo/client"
+import { graphQLResultHasError } from "@apollo/client/utilities"
 
-export const ALL_BOOKS = gql`
-  query {
-    allBooks {
-      title
-      author
-      published
-      genres
-    }
-  }
-`
+import { ALL_BOOKS } from "../querys"
+
 const Books = (props) => {
   const queryResult = useQuery(ALL_BOOKS, {
-
+    pollInterval: 10000,
   })
 
-  if (!props.show) {
+  if (!props.show || queryResult.error) {
     return null
   }
-  if(queryResult.loading) return <div>...Loading Books</div>
+  if (queryResult.loading) return <div>...Loading Books</div>
 
-  const books = [...queryResult.data.allBooks]
+  const books = [...queryResult.data.allBooks] || []
 
   return (
     <div>
@@ -36,7 +29,7 @@ const Books = (props) => {
           {books.map((a) => (
             <tr key={a.title}>
               <td>{a.title}</td>
-              <td>{a.author}</td>
+              <td>{a.author.name}</td>
               <td>{a.published}</td>
             </tr>
           ))}

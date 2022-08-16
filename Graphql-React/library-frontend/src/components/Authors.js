@@ -1,44 +1,35 @@
 import { gql, useMutation, useQuery } from "@apollo/client"
+
 import { useState } from "react"
 import Select from "react-select"
-const ALL_AUTHORS = gql`
-  query {
-    allAuthors {
-      name
-      born
-      bookAmount
-    }
-  }
-`
-const SET_BORN = gql`
-  mutation setBorn($name: String!, $setBornTo: Int!) {
-    editAuthor(name: $name, setBornTo: $setBornTo) {
-      name
-    }
-  }
-`
+import { ALL_AUTHORS, SET_BORN } from "../querys"
+
 const Authors = (props) => {
   const queryResult = useQuery(ALL_AUTHORS)
   const [birthYear, setBirthYear] = useState("")
   const [selectedAuthor, setSelectedAuthor] = useState(null)
   const [editAuthor] = useMutation(SET_BORN, {
     refetchQueries: [{ query: ALL_AUTHORS }],
+    onError: (error) => {
+      props.setError(error.graphQLErrors[0].message)
+    },
   })
-  if (!props.show) {
+
+  if (!props.show || queryResult.error) {
     return null
   }
+
   if (queryResult.loading) return <div>...Loading</div>
-  const authors = [...queryResult.data.allAuthors]
-  console.log(queryResult.data)
+  const authors = [...queryResult.data.allAuthors] || []
 
   const options = []
   authors.forEach((author) => {
     options.push({ value: author.name, label: author.name })
   })
-  console.log(options)
 
   const setBornTo = async (e) => {
     e.preventDefault()
+
     const born = parseInt(birthYear)
     editAuthor({
       variables: {
@@ -56,7 +47,6 @@ const Authors = (props) => {
           <tr>
             <th></th>
             <th>born</th>
-            <th>books</th>
           </tr>
           {authors.map((a) => (
             <tr key={a.name}>
